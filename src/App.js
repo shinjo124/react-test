@@ -5,6 +5,7 @@ import GameSidebar from './components/GameSidebar';
 import GameOverModal from './components/GameOverModal';
 import { sounds } from './utils/soundEffects';
 import { getBestMove } from './utils/chessAI';
+import chessLogo from './logo.svg';
 import './App.css';
 
 export default function App() {
@@ -215,7 +216,7 @@ export default function App() {
       {/* Top Navbar */}
       <header className="app-header">
         <div className="brand-logo">
-          <div className="logo-icon">♟️</div>
+          <img src={chessLogo} alt="Apex Chess Logo" className="logo-image" />
           <div className="brand-text">
             <span className="brand-title">Apex Chess</span>
             <span className="brand-sub">Grandmaster Arena</span>

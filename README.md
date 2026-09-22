@@ -1,70 +1,126 @@
-# Getting Started with Create React App
+# ♟️ Apex Chess
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> A modern, responsive, and visually stunning chess web application built with **React 19**, **chess.js**, and browser-native **Web Audio API**.
 
-## Available Scripts
+---
+
+## ✨ Features
+
+### 🎮 Game Modes
+- **Play vs Computer (AI)**:
+  - **Novice (Easy)**: Casual, quick play with capture prioritization.
+  - **Intermediate (Medium)**: Tactical gameplay powered by depth-2 Minimax with Piece-Square Tables (PST).
+  - **Master (Hard)**: Depth-3 Minimax with Alpha-Beta Pruning, move ordering (MVV-LVA), king safety, and endgame awareness.
+- **Pass & Play (2 Players)**: Local multiplayer on the same device.
+- **Analysis Sandbox**: Free-form board exploration and position analysis.
+
+### 🎨 Customizable Board & Aesthetics
+- **Dark Glassmorphism Interface**: Sleek dark slate theme with glowing accents and smooth micro-animations.
+- **4 Beautiful Board Themes**:
+  - 🌿 **Emerald Green**: Classic tournament aesthetic (inspired by Chess.com).
+  - 🌌 **Midnight Cyber**: Futuristic neon slate & deep dark squares.
+  - 🪵 **Tournament Walnut**: Warm wooden grain style.
+  - 🪨 **Minimal Slate**: Clean modern monochrome style.
+- **High-Definition Vector Pieces**: Scalable SVGs with custom drop shadows and crisp contours.
+- **Visual Move Indicators**:
+  - Legal target dots and capture rings.
+  - Selected square aura and last-move origin/destination highlights.
+  - Pulsing check warning centered on the King under attack.
+- **Interactive Pawn Promotion**: Inline dialog to promote pawns to Queen, Rook, Bishop, or Knight.
+- **Flexible Controls**: Seamless click-to-move and drag-and-drop support.
+
+### ⏱️ Clocks & Timers
+- **Customizable Time Controls**:
+  - Untimed (Casual)
+  - 3 min (Blitz)
+  - 5 min (Blitz)
+  - 10 min (Rapid)
+- Active turn indicator with low-time countdown warnings (< 30 seconds).
+
+### 🔊 Pure Web Audio Sound Effects
+- Synthesized in real time using the browser's native `AudioContext`.
+- **Zero audio lag, 100% offline**, and no external audio asset dependencies:
+  - Wooden tap for moves
+  - Deep thud for captures
+  - Harmonic chime for checks
+  - Celebratory arpeggio for victory
+  - Sound mute toggle included
+
+### 📊 Sidebar & Utilities
+- **Captured Pieces Tray**: Real-time captured piece counts with net material difference (`+1`, `+3`, etc.).
+- **Move Notation History**: Standard Algebraic Notation (SAN) table with auto-scrolling.
+- **Board Flip**: Toggle between White and Black perspectives.
+- **Undo Move**: Retract mistakes (reverts both AI and player moves in AI mode).
+- **Copy FEN**: Export current board position to clipboard in one click.
+- **Game Over Dialog**: Clear announcements for checkmate, stalemate, 50-move rule, threefold repetition, resignation, and timeout with a "Play Again" or "Review Board" option.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 18+ recommended)
+- `npm` (bundled with Node.js)
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/shinjo124/react-test.git
+   cd react-test
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Launch the development server:
+   ```bash
+   npm start
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 🛠️ Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+- **`npm start`**: Runs the app in development mode with hot reloading.
+- **`npm test`**: Launches the Jest test runner in CI mode (`npm test -- --watch=false`).
+- **`npm run build`**: Builds an optimized production bundle into the `build` folder.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🧩 Project Structure
 
-### `npm test`
+```text
+src/
+├── components/
+│   ├── ChessBoard.js       # 8x8 interactive board, squares, themes, & promotion modal
+│   ├── ChessPiece.js       # Crisp vector SVG chess piece set
+│   ├── GameOverModal.js    # Victory / Draw overlay dialog
+│   └── GameSidebar.js      # Player cards, timers, captured pieces, move history, & settings
+├── utils/
+│   ├── chessAI.js          # Minimax + Alpha-Beta pruning AI engine & piece-square tables
+│   └── soundEffects.js     # Web Audio API sound synthesizer
+├── App.js                  # Main game state orchestrator & lifecycle management
+├── App.css                 # Glassmorphic dark styling, board grid, & responsive layouts
+├── App.test.js             # Unit tests for board rendering, pieces, and game actions
+└── index.js                # React mount entry point
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 📜 Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **React 19**: Modern component architecture with hooks (`useRef`, `useCallback`, `useEffect`).
+- **chess.js**: Move validation, legal moves generation, check/checkmate/draw conditions, and FEN handling.
+- **Web Audio API**: Real-time audio waveform synthesis for instant game sound effects.
+- **Vanilla CSS**: Clean, responsive design tokens with glassmorphism and CSS animations.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 📄 License
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+MIT License. Feel free to use, modify, and distribute this project.

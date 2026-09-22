@@ -1,6 +1,6 @@
 # ♟️ Apex Chess
 
-> A modern, responsive, and visually stunning chess web application built with **React 19**, **chess.js**, and browser-native **Web Audio API**.
+> A modern, responsive, and visually stunning chess web application built with **React 19**, **chess.js**, **Web Audio API**, and an integrated **Node.js + Express RESTful API** ready for deployment on **Render**.
 
 ---
 
@@ -56,6 +56,22 @@
 
 ---
 
+## 🌐 RESTful API Endpoints
+
+The project includes an integrated Node.js + Express REST API on port `5000`:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check & uptime status (Render liveness) |
+| `GET` | `/api/games` | Retrieve list of active and recent game sessions |
+| `POST` | `/api/games` | Create a new game session (`{ mode, difficulty }`) |
+| `GET` | `/api/games/:id` | Fetch complete game state (FEN, PGN, move history, turn) |
+| `POST` | `/api/games/:id/move` | Validate and execute a move (`{ from, to, promotion }`) |
+| `POST` | `/api/games/:id/ai-move` | Request an AI move generated on the server |
+| `DELETE` | `/api/games/:id` | Terminate and remove a game session |
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -74,11 +90,17 @@
    npm install
    ```
 
-3. Launch the development server:
-   ```bash
-   npm start
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Launch in development:
+   - To run the **React frontend** locally:
+     ```bash
+     npm run client
+     ```
+     Open [http://localhost:3000](http://localhost:3000) in your browser.
+   - To run the **Express backend** server:
+     ```bash
+     npm start
+     ```
+     Running on [http://localhost:5000](http://localhost:5000).
 
 ---
 
@@ -86,38 +108,63 @@
 
 In the project directory, you can run:
 
-- **`npm start`**: Runs the app in development mode with hot reloading.
+- **`npm start`**: Runs the Express server (serves REST API `/api/*` and production React `build/`).
+- **`npm run client`**: Runs the React development server locally at `http://localhost:3000`.
 - **`npm test`**: Launches the Jest test runner in CI mode (`npm test -- --watch=false`).
-- **`npm run build`**: Builds an optimized production bundle into the `build` folder.
+- **`npm run build`**: Compiles an optimized production React build into `build/`.
+
+---
+
+## ☁️ Deployment on Render
+
+This repository includes a `render.yaml` blueprint for automatic 1-click deployment on Render:
+
+1. Push your latest code to your GitHub repository:
+   ```bash
+   git push -u origin main
+   ```
+2. Log into **[dashboard.render.com](https://dashboard.render.com/)**.
+3. Click **New +** > **Blueprint** (or **Web Service**).
+4. Connect your repository: `https://github.com/shinjo124/react-test.git`.
+5. If creating a manual **Web Service**:
+   - **Environment**: `Node`
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm start`
+   - **Plan**: Free
+6. Click **Deploy**. Render will install dependencies, compile the React frontend, and start Express serving both the REST API and the web app on your free `.onrender.com` domain!
 
 ---
 
 ## 🧩 Project Structure
 
 ```text
-src/
-├── components/
-│   ├── ChessBoard.js       # 8x8 interactive board, squares, themes, & promotion modal
-│   ├── ChessPiece.js       # Crisp vector SVG chess piece set
-│   ├── GameOverModal.js    # Victory / Draw overlay dialog
-│   └── GameSidebar.js      # Player cards, timers, captured pieces, move history, & settings
-├── utils/
-│   ├── chessAI.js          # Minimax + Alpha-Beta pruning AI engine & piece-square tables
-│   └── soundEffects.js     # Web Audio API sound synthesizer
-├── App.js                  # Main game state orchestrator & lifecycle management
-├── App.css                 # Glassmorphic dark styling, board grid, & responsive layouts
-├── App.test.js             # Unit tests for board rendering, pieces, and game actions
-└── index.js                # React mount entry point
+├── build/                 # Compiled production React frontend
+├── server/
+│   └── index.js           # Express REST API & SPA static server
+├── src/
+│   ├── components/
+│   │   ├── ChessBoard.js       # Interactive board, themes, & promotion modal
+│   │   ├── ChessPiece.js       # Crisp vector SVG chess piece set
+│   │   ├── GameOverModal.js    # Victory / Draw overlay dialog
+│   │   └── GameSidebar.js      # Player cards, timers, captured pieces, move history
+│   ├── utils/
+│   │   ├── chessAI.js          # Minimax + Alpha-Beta pruning AI engine
+│   │   └── soundEffects.js     # Web Audio API sound synthesizer
+│   ├── App.js                  # Main game state orchestrator
+│   ├── App.css                 # Glassmorphic dark styling & responsive grid
+│   ├── App.test.js             # Unit tests
+│   └── index.js                # React mount point
+├── render.yaml            # Render blueprint deployment configuration
+└── package.json           # Unified scripts for Render & dependencies
 ```
 
 ---
 
 ## 📜 Tech Stack
 
-- **React 19**: Modern component architecture with hooks (`useRef`, `useCallback`, `useEffect`).
-- **chess.js**: Move validation, legal moves generation, check/checkmate/draw conditions, and FEN handling.
-- **Web Audio API**: Real-time audio waveform synthesis for instant game sound effects.
-- **Vanilla CSS**: Clean, responsive design tokens with glassmorphism and CSS animations.
+- **Frontend**: React 19, Vanilla CSS (Glassmorphism & animations), Web Audio API
+- **Backend API**: Node.js, Express, CORS, `chess.js`
+- **Deployment**: Render (Web Service / Blueprint)
 
 ---
 

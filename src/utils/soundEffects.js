@@ -168,6 +168,30 @@ class SoundManager {
       });
     } catch (e) {}
   }
+
+  // Cyber synth blip / defiance sound effect
+  playCyberZap() {
+    if (this.muted) return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const startTime = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(520, startTime);
+      osc.frequency.exponentialRampToValueAtTime(1040, startTime + 0.04);
+      osc.frequency.exponentialRampToValueAtTime(180, startTime + 0.16);
+
+      gain.gain.setValueAtTime(0.25, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.16);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.16);
+    } catch (e) {}
+  }
 }
 
 export const sounds = new SoundManager();

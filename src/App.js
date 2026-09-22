@@ -5,10 +5,14 @@ import GameSidebar from './components/GameSidebar';
 import GameOverModal from './components/GameOverModal';
 import { sounds } from './utils/soundEffects';
 import { getBestMove } from './utils/chessAI';
+import FuturisticPortal from './components/FuturisticPortal';
 import chessLogo from './logo.svg';
 import './App.css';
 
 export default function App() {
+  // Navigation tab state
+  const [activeTab, setActiveTab] = useState('portal'); // 'portal' | 'chess'
+
   // Game instance & core board state
   const chessRef = useRef(new Chess());
   const game = chessRef.current;
@@ -212,83 +216,113 @@ export default function App() {
     (gameMode !== 'ai' || game.turn() === boardOrientation);
 
   return (
-    <div className="app-container">
-      {/* Top Navbar */}
-      <header className="app-header">
-        <div className="brand-logo">
-          <img src={chessLogo} alt="Apex Chess Logo" className="logo-image" />
-          <div className="brand-text">
-            <span className="brand-title">Apex Chess</span>
-            <span className="brand-sub">Grandmaster Arena</span>
-          </div>
-        </div>
+    <div className="app-root">
+      {/* Top Right Corner Floating Navigation Dock */}
+      <nav className="top-corner-dock" aria-label="Main Navigation">
+        <button
+          type="button"
+          className={`corner-pill-btn ${activeTab === 'portal' ? 'active' : ''}`}
+          onClick={() => setActiveTab('portal')}
+          aria-pressed={activeTab === 'portal'}
+          data-testid="tab-portal"
+        >
+          <span className="pill-icon">⚡</span>
+          <span className="pill-text">Portal</span>
+        </button>
+        <button
+          type="button"
+          className={`corner-pill-btn ${activeTab === 'chess' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chess')}
+          aria-pressed={activeTab === 'chess'}
+          data-testid="tab-chess"
+        >
+          <span className="pill-icon">♟️</span>
+          <span className="pill-text">Chess</span>
+        </button>
+      </nav>
 
-        <div className="header-status">
-          <div className="turn-pill">
-            <span
-              className={`turn-indicator-dot ${
-                game.turn() === 'w' ? 'turn-white' : 'turn-black'
-              }`}
-            />
-            <span>
-              {game.isGameOver()
-                ? 'Game Finished'
-                : game.turn() === 'w'
-                ? 'White to move'
-                : 'Black to move'}
-            </span>
-          </div>
-          {game.inCheck() && !game.isGameOver() && (
-            <div className="check-alert-pill">⚠️ CHECK!</div>
-          )}
-        </div>
-      </header>
+      {activeTab === 'portal' ? (
+        <FuturisticPortal onOpenChess={() => setActiveTab('chess')} />
+      ) : (
+        <div className="app-container">
+          {/* Top Navbar */}
+          <header className="app-header">
+            <div className="brand-logo">
+              <img src={chessLogo} alt="Apex Chess Logo" className="logo-image" />
+              <div className="brand-text">
+                <span className="brand-title">Apex Chess</span>
+                <span className="brand-sub">Grandmaster Arena</span>
+              </div>
+            </div>
 
-      {/* Main Workspace */}
-      <main className="game-layout">
-        <div className="board-column">
-          <ChessBoard
-            game={game}
-            boardOrientation={boardOrientation}
-            boardTheme={boardTheme}
-            onMakeMove={handleMakeMove}
-            lastMove={lastMove}
-            isInteractive={isInteractive}
+            <div className="header-status">
+              <div className="turn-pill">
+                <span
+                  className={`turn-indicator-dot ${
+                    game.turn() === 'w' ? 'turn-white' : 'turn-black'
+                  }`}
+                />
+                <span>
+                  {game.isGameOver()
+                    ? 'Game Finished'
+                    : game.turn() === 'w'
+                    ? 'White to move'
+                    : 'Black to move'}
+                </span>
+              </div>
+              {game.inCheck() && !game.isGameOver() && (
+                <div className="check-alert-pill">⚠️ CHECK!</div>
+              )}
+            </div>
+          </header>
+
+          {/* Main Workspace */}
+          <main className="game-layout">
+            <div className="board-column">
+              <ChessBoard
+                game={game}
+                boardOrientation={boardOrientation}
+                boardTheme={boardTheme}
+                onMakeMove={handleMakeMove}
+                lastMove={lastMove}
+                isInteractive={isInteractive}
+              />
+            </div>
+
+            <div className="sidebar-column">
+              <GameSidebar
+                game={game}
+                gameMode={gameMode}
+                setGameMode={setGameMode}
+                aiDifficulty={aiDifficulty}
+                setAiDifficulty={setAiDifficulty}
+                boardTheme={boardTheme}
+                setBoardTheme={setBoardTheme}
+                timeControl={timeControl}
+                setTimeControl={handleTimeControlChange}
+                timers={timers}
+                moveHistory={moveHistory}
+                onNewGame={handleNewGame}
+                onUndo={handleUndo}
+                onFlipBoard={handleFlipBoard}
+                onResign={handleResign}
+                soundMuted={soundMuted}
+                onToggleSound={toggleSound}
+                isAiThinking={isAiThinking}
+              />
+            </div>
+          </main>
+
+          {/* Game Over Dialog */}
+          <GameOverModal
+            isOpen={gameOverInfo.isOpen}
+            winner={gameOverInfo.winner}
+            reason={gameOverInfo.reason}
+            onRestart={handleNewGame}
+            onClose={() => setGameOverInfo((prev) => ({ ...prev, isOpen: false }))}
           />
         </div>
-
-        <div className="sidebar-column">
-          <GameSidebar
-            game={game}
-            gameMode={gameMode}
-            setGameMode={setGameMode}
-            aiDifficulty={aiDifficulty}
-            setAiDifficulty={setAiDifficulty}
-            boardTheme={boardTheme}
-            setBoardTheme={setBoardTheme}
-            timeControl={timeControl}
-            setTimeControl={handleTimeControlChange}
-            timers={timers}
-            moveHistory={moveHistory}
-            onNewGame={handleNewGame}
-            onUndo={handleUndo}
-            onFlipBoard={handleFlipBoard}
-            onResign={handleResign}
-            soundMuted={soundMuted}
-            onToggleSound={toggleSound}
-            isAiThinking={isAiThinking}
-          />
-        </div>
-      </main>
-
-      {/* Game Over Dialog */}
-      <GameOverModal
-        isOpen={gameOverInfo.isOpen}
-        winner={gameOverInfo.winner}
-        reason={gameOverInfo.reason}
-        onRestart={handleNewGame}
-        onClose={() => setGameOverInfo((prev) => ({ ...prev, isOpen: false }))}
-      />
+      )}
     </div>
   );
 }

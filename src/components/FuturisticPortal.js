@@ -1,53 +1,47 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { sounds } from '../utils/soundEffects';
 
-const GREETINGS = [
-  'HELLO, WORLD!',
-  'HELLO, INTERNET!',
-  'HELLO, YOU!',
-  'HELLO, MULTIVERSE!',
-  'HELLO, CYBERSPACE!',
-  'HELLO, TIME TRAVELER!',
-  'HELLO, QUANTUM BEING!',
+export const SOFT_THEMES = [
+  { id: 'linen', label: 'WARM LINEN', bg: '#f8f6f0' },
+  { id: 'sage', label: 'MUTED SAGE', bg: '#eef3ee' },
+  { id: 'lavender', label: 'LAVENDER HAZE', bg: '#f2eff8' },
+  { id: 'azure', label: 'ICE AZURE', bg: '#edf4f8' },
+  { id: 'peach', label: 'SOFT PEACH', bg: '#fbf0ea' },
+  { id: 'rose', label: 'ROSE MIST', bg: '#f8eef1' },
+  { id: 'stone', label: 'MINIMAL STONE', bg: '#f3f3f2' },
 ];
 
-const THEMES = [
-  { id: 'cyber-void', label: 'CYBER VOID', accent: '#06b6d4' },
-  { id: 'neon-hyperdrive', label: 'NEON HYPERDRIVE', accent: '#a855f7' },
-  { id: 'solar-core', label: 'SOLAR SINGULARITY', accent: '#f59e0b' },
-  { id: 'matrix-phosphor', label: 'MATRIX PHOSPHOR', accent: '#10b981' },
-  { id: 'crimson-paradox', label: 'CRIMSON OVERDRIVE', accent: '#f43f5e' },
-  { id: 'synthwave-horizon', label: 'SYNTHWAVE HORIZON', accent: '#ec4899' },
+export const GREETINGS = [
+  'Hello, World!',
+  'Hello, Internet!',
+  'Hello, You!',
 ];
 
 const EMOJI_POOL = [
-  '🚀', '🤖', '⚡', '🔮', '👾', '🌌', '💥', '🧬',
-  '🛸', '☢️', '🧿', '🔥', '🪐', '💫', '🧨', '💎',
-  '♟️', '👑'
+  '✨', '♟️', '🪐', '☕', '⚡', '🌿', '🔮', '🫧',
+  '🎨', '🕊️', '💫', '🎯', '💎', '🌙', '🌊', '👑'
 ];
 
-export default function FuturisticPortal({ onOpenChess }) {
+export default function FuturisticPortal({
+  onOpenChess,
+  themeIndex = 0,
+  onThemeChange,
+  themes = SOFT_THEMES,
+}) {
   const [clickCount, setClickCount] = useState(0);
   const [textIndex, setTextIndex] = useState(0);
-  const [themeIndex, setThemeIndex] = useState(0);
+  const [localThemeIndex, setLocalThemeIndex] = useState(themeIndex);
   const [emojis, setEmojis] = useState([]);
-  const [isGlitching, setIsGlitching] = useState(false);
   const [shockwaveKey, setShockwaveKey] = useState(0);
 
   const emojiIdRef = useRef(0);
-  const glitchTimerRef = useRef(null);
 
-  // Clean up emoji particles and timer on unmount
-  useEffect(() => {
-    return () => {
-      if (glitchTimerRef.current) {
-        clearTimeout(glitchTimerRef.current);
-      }
-    };
-  }, []);
+  const activeThemeIndex = onThemeChange ? themeIndex : localThemeIndex;
+  const currentTheme = themes[activeThemeIndex % themes.length] || SOFT_THEMES[0];
+  const currentGreeting = GREETINGS[textIndex % GREETINGS.length];
 
   const handleDefianceClick = useCallback((e) => {
-    // 1. Play synth sound if available
+    // 1. Play subtle audio pulse
     if (sounds.playCyberZap) {
       sounds.playCyberZap();
     } else {
@@ -61,34 +55,32 @@ export default function FuturisticPortal({ onOpenChess }) {
     setTextIndex((prev) => (prev + 1) % GREETINGS.length);
 
     // 4. Change background theme
-    setThemeIndex((prev) => (prev + 1) % THEMES.length);
+    if (onThemeChange) {
+      onThemeChange((prev) => (prev + 1) % themes.length);
+    } else {
+      setLocalThemeIndex((prev) => (prev + 1) % themes.length);
+    }
 
-    // 5. Trigger animation shockwave & glitch
+    // 5. Trigger subtle shockwave
     setShockwaveKey((k) => k + 1);
-    setIsGlitching(true);
-    if (glitchTimerRef.current) clearTimeout(glitchTimerRef.current);
-    glitchTimerRef.current = setTimeout(() => {
-      setIsGlitching(false);
-    }, 450);
 
-    // 6. Spawn random floating emojis around the button
+    // 6. Spawn floating emojis around the button
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    const count = Math.floor(Math.random() * 2) + 2; // 2 to 3 emojis per click
+    const count = 2;
     const newItems = [];
 
     for (let i = 0; i < count; i++) {
       const id = ++emojiIdRef.current;
       const emoji = EMOJI_POOL[Math.floor(Math.random() * EMOJI_POOL.length)];
-      // Spread angle
       const angle = (Math.random() * 360 * Math.PI) / 180;
-      const distance = 80 + Math.random() * 120;
+      const distance = 60 + Math.random() * 80;
       const dx = Math.cos(angle) * distance;
-      const dy = Math.sin(angle) * distance - 80; // bias upward
-      const rot = (Math.random() - 0.5) * 60;
-      const scale = 0.8 + Math.random() * 0.7;
+      const dy = Math.sin(angle) * distance - 60; // drift upward
+      const rot = (Math.random() - 0.5) * 40;
+      const scale = 0.85 + Math.random() * 0.4;
 
       newItems.push({
         id,
@@ -104,33 +96,25 @@ export default function FuturisticPortal({ onOpenChess }) {
 
     setEmojis((prev) => [...prev, ...newItems]);
 
-    // Schedule cleanup of these emojis
+    // Clean up emojis after animation completes
     setTimeout(() => {
       setEmojis((prev) => prev.filter((item) => !newItems.some((n) => n.id === item.id)));
     }, 1100);
-  }, []);
-
-  const currentTheme = THEMES[themeIndex];
-  const currentGreeting = GREETINGS[textIndex];
+  }, [onThemeChange, themes.length]);
 
   return (
-    <div
-      className={`portal-stage theme-${currentTheme.id} ${isGlitching ? 'portal-glitch-active' : ''}`}
-      style={{ '--theme-accent': currentTheme.accent }}
-    >
-      {/* Dynamic Cyber Grid & Star Horizon */}
-      <div className="portal-grid-overlay" aria-hidden="true" />
+    <div className={`portal-stage theme-${currentTheme.id}`}>
+      {/* Subtle organic light accent */}
       <div className="portal-ambient-glow" aria-hidden="true" />
-      <div className="portal-scanline" aria-hidden="true" />
 
-      {/* Futuristic Telemetry HUD */}
+      {/* Minimal Telemetry HUD */}
       <div className="portal-hud top-hud">
         <div className="hud-badge">
           <span className="hud-dot" />
-          <span className="hud-mono">CORE STATUS: STABLE</span>
+          <span className="hud-mono">STATUS: ACTIVE</span>
         </div>
         <div className="hud-badge secondary">
-          <span className="hud-mono">THEME: {currentTheme.label}</span>
+          <span className="hud-mono">TONE: {currentTheme.label}</span>
         </div>
       </div>
 
@@ -154,13 +138,11 @@ export default function FuturisticPortal({ onOpenChess }) {
         ))}
       </div>
 
-      {/* Main Hero Content */}
+      {/* Main Content */}
       <main className="portal-content">
+        {/* Strictly fixed-height title wrapper to prevent layout shift */}
         <div className="portal-title-wrapper">
-          <h1
-            className={`huge-portal-title ${isGlitching ? 'title-shake' : ''}`}
-            data-text={currentGreeting}
-          >
+          <h1 className="huge-portal-title">
             {currentGreeting}
           </h1>
           <p className="portal-caption">
@@ -168,7 +150,7 @@ export default function FuturisticPortal({ onOpenChess }) {
           </p>
         </div>
 
-        {/* Hazard Action Button */}
+        {/* Compact Hazard Action Button */}
         <div className="hazard-zone">
           {shockwaveKey > 0 && (
             <div key={shockwaveKey} className="hazard-shockwave" aria-hidden="true" />
@@ -176,18 +158,16 @@ export default function FuturisticPortal({ onOpenChess }) {
 
           <button
             type="button"
-            className={`do-not-click-btn ${isGlitching ? 'btn-defiance-active' : ''}`}
+            className="do-not-click-btn"
             onClick={handleDefianceClick}
             aria-label="Do not click button"
           >
-            <span className="btn-hazard-stripes" aria-hidden="true" />
-            <span className="btn-icon">⚠️</span>
+            <span className="btn-hazard-dot" aria-hidden="true" />
             <span className="btn-label">DO NOT CLICK</span>
-            <span className="btn-glow-ring" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Defiance Counter Display */}
+        {/* Simplistic Defiance Counter */}
         <div className="defiance-counter-card">
           <span className="counter-eyebrow">DEFIANCE LEVEL</span>
           <div className="counter-reading">
@@ -206,7 +186,7 @@ export default function FuturisticPortal({ onOpenChess }) {
           </div>
         </div>
 
-        {/* Subtle quick launcher to Chess */}
+        {/* Quick link to Chess */}
         {onOpenChess && (
           <div className="portal-footer-link">
             <button
@@ -225,7 +205,7 @@ export default function FuturisticPortal({ onOpenChess }) {
       {/* Bottom Telemetry HUD */}
       <div className="portal-hud bottom-hud">
         <span className="hud-mono">COORDINATES: 0x7F // SECTOR 9</span>
-        <span className="hud-mono">QUANTUM ANOMALY DETECTOR: ACTIVE</span>
+        <span className="hud-mono">SYSTEM: NORMAL</span>
       </div>
     </div>
   );

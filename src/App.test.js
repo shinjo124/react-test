@@ -32,9 +32,9 @@ test('clicking DO NOT CLICK cycles text from HELLO, WORLD! to HELLO, INTERNET! t
   expect(screen.getByRole('heading', { level: 1, name: /HELLO, YOU!/i })).toBeInTheDocument();
   expect(screen.getByText(/02/)).toBeInTheDocument();
 
-  // Click 3: Hello, Multiverse!
+  // Click 3: cycles back to Hello, World!
   fireEvent.click(hazardBtn);
-  expect(screen.getByRole('heading', { level: 1, name: /HELLO, MULTIVERSE!/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 1, name: /HELLO, WORLD!/i })).toBeInTheDocument();
   expect(screen.getByText(/03/)).toBeInTheDocument();
 });
 

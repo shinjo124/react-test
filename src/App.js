@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { Chess } from 'chess.js';
 import ChessBoard from './components/ChessBoard';
 import GameSidebar from './components/GameSidebar';
@@ -217,15 +217,46 @@ export default function App() {
     !isAiThinking &&
     (gameMode !== 'ai' || game.turn() === boardOrientation);
 
+  // Sliding pill indicator refs
+  const dockRef = useRef(null);
+  const portalBtnRef = useRef(null);
+  const chessBtnRef = useRef(null);
+  const [pillStyle, setPillStyle] = useState({ left: 4, width: 0, opacity: 0 });
+
+  useLayoutEffect(() => {
+    const activeRef = activeTab === 'portal' ? portalBtnRef : chessBtnRef;
+    const btn = activeRef.current;
+    const dock = dockRef.current;
+    if (!btn || !dock) return;
+    const btnRect = btn.getBoundingClientRect();
+    const dockRect = dock.getBoundingClientRect();
+    setPillStyle({
+      left: btnRect.left - dockRect.left,
+      width: btnRect.width,
+      opacity: 1,
+    });
+  }, [activeTab]);
+
   return (
     <div
       className={`app-root theme-${currentTheme.id}`}
       style={{ '--theme-bg': currentTheme.bg }}
     >
       {/* Top Right Corner Floating Navigation Dock */}
-      <nav className="top-corner-dock" aria-label="Main Navigation">
+      <nav className="top-corner-dock" ref={dockRef} aria-label="Main Navigation">
+        {/* Sliding background bubble */}
+        <span
+          className="dock-slider"
+          aria-hidden="true"
+          style={{
+            left: pillStyle.left,
+            width: pillStyle.width,
+            opacity: pillStyle.opacity,
+          }}
+        />
         <button
           type="button"
+          ref={portalBtnRef}
           className={`corner-pill-btn ${activeTab === 'portal' ? 'active' : ''}`}
           onClick={() => setActiveTab('portal')}
           aria-pressed={activeTab === 'portal'}
@@ -236,6 +267,7 @@ export default function App() {
         </button>
         <button
           type="button"
+          ref={chessBtnRef}
           className={`corner-pill-btn ${activeTab === 'chess' ? 'active' : ''}`}
           onClick={() => setActiveTab('chess')}
           aria-pressed={activeTab === 'chess'}
@@ -262,9 +294,9 @@ export default function App() {
               {/* Top Navbar */}
               <header className="app-header">
                 <div className="brand-logo">
-                  <img src={chessLogo} alt="Apex Chess Logo" className="logo-image" />
+                  <img src={chessLogo} alt="Chess Logo" className="logo-image" />
                   <div className="brand-text">
-                    <span className="brand-title">Apex Chess</span>
+                    <span className="brand-title">Chess</span>
                     <span className="brand-sub">Grandmaster Arena</span>
                   </div>
                 </div>
@@ -272,16 +304,15 @@ export default function App() {
                 <div className="header-status">
                   <div className="turn-pill">
                     <span
-                      className={`turn-indicator-dot ${
-                        game.turn() === 'w' ? 'turn-white' : 'turn-black'
-                      }`}
+                      className={`turn-indicator-dot ${game.turn() === 'w' ? 'turn-white' : 'turn-black'
+                        }`}
                     />
                     <span>
                       {game.isGameOver()
                         ? 'Game Finished'
                         : game.turn() === 'w'
-                        ? 'White to move'
-                        : 'Black to move'}
+                          ? 'White to move'
+                          : 'Black to move'}
                     </span>
                   </div>
                   {game.inCheck() && !game.isGameOver() && (

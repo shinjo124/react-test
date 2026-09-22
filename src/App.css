@@ -28,6 +28,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-y: scroll; /* always reserve scrollbar gutter — prevents layout flicker */
   transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -623,20 +624,33 @@ body {
 }
 
 .custom-select {
-  background: #1e293b;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  color: #0f172a;
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 12px;
   font-weight: 500;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .custom-select:focus {
-  border-color: var(--accent-indigo);
+  border-color: rgba(15, 23, 42, 0.4);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
+}
+
+.custom-select:hover {
+  border-color: rgba(15, 23, 42, 0.3);
+  background: #ffffff;
+}
+
+.custom-select option {
+  background: #ffffff;
+  color: #0f172a;
 }
 
 /* Action Buttons Grid */
@@ -847,6 +861,7 @@ body {
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 9999px;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  isolation: isolate;
 }
 
 .corner-pill-btn {
@@ -862,12 +877,13 @@ body {
   font-weight: 600;
   cursor: pointer;
   outline: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative; /* sit above the slider */
+  z-index: 1;
+  transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .corner-pill-btn:hover {
   color: #0f172a;
-  background: rgba(15, 23, 42, 0.05);
 }
 
 .corner-pill-btn:focus-visible {
@@ -877,9 +893,23 @@ body {
 
 .corner-pill-btn.active {
   color: #ffffff;
+  /* background handled by .dock-slider — do NOT set it here */
+}
+
+/* Animated sliding bubble behind active pill */
+.dock-slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 9999px;
   background: #0f172a;
-  border-color: #0f172a;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease;
 }
 
 .pill-icon {

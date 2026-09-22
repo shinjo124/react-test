@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: apex-chess-app
+    name: hello-world
     runtime: node
     plan: free
     buildCommand: npm install && npm run build

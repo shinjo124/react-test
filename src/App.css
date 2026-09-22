@@ -1268,3 +1268,157 @@ body {
   }
 }
 
+/* ── Screen shake effects ─────────────────────────────────────────────────── */
+.screen-shake {
+  animation: screenShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+.screen-shake-hard {
+  animation: screenShakeHard 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes screenShake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+@keyframes screenShakeHard {
+  10%, 90% { transform: translate(-4px, -1px); }
+  20%, 80% { transform: translate(5px, 1px); }
+  30%, 50%, 70% { transform: translate(-7px, -2px); }
+  40%, 60% { transform: translate(7px, 2px); }
+}
+
+/* ── Confetti layer ───────────────────────────────────────────────────────── */
+.confetti-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  left: var(--x, 50vw);
+  width: var(--size, 8px);
+  height: var(--size, 8px);
+  background: var(--color, #f59e0b);
+  border-radius: 2px;
+  animation: confettiFall var(--duration, 1s) var(--delay, 0s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(var(--rot, 360deg)); opacity: 0; }
+}
+
+/* ── Achievement toast ────────────────────────────────────────────────────── */
+.achievement-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.25);
+  white-space: nowrap;
+  animation: toastSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             toastFadeOut 0.4s 3.5s ease forwards;
+}
+
+.achievement-icon {
+  font-size: 18px;
+}
+
+@keyframes toastSlideUp {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+@keyframes toastFadeOut {
+  to { opacity: 0; transform: translateX(-50%) translateY(10px); }
+}
+
+/* ── Milestone message card ───────────────────────────────────────────────── */
+.message-card {
+  margin-bottom: 28px;
+  animation: msgFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.milestone-message {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: 0.1px;
+  line-height: 1.4;
+  max-width: 480px;
+  text-align: center;
+}
+
+@keyframes msgFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Intensity tiers — title ─────────────────────────────────────────────── */
+.intensity-title-0 { color: #0f172a; }
+.intensity-title-1 { color: #1e293b; }
+.intensity-title-2 { color: #1e293b; }
+.intensity-title-3 { color: #0f172a; animation: titlePulse 2s ease-in-out infinite; }
+.intensity-title-4 { color: #0f172a; animation: titlePulse 1s ease-in-out infinite; }
+
+@keyframes titlePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+/* ── Intensity tiers — button ────────────────────────────────────────────── */
+.intensity-btn-0 { background: #0f172a; }
+.intensity-btn-1 { background: #1e293b; }
+.intensity-btn-2 { background: #374151; }
+.intensity-btn-3 {
+  background: #dc2626;
+  animation: btnPressurePulse 1.5s ease-in-out infinite;
+}
+.intensity-btn-4 {
+  background: #7c3aed;
+  animation: btnPressurePulse 0.8s ease-in-out infinite;
+}
+
+@keyframes btnPressurePulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  50%       { box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+}
+
+/* ── Wiggle animation ────────────────────────────────────────────────────── */
+.wiggle-anim {
+  animation: btnWiggle 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes btnWiggle {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(-4deg); }
+  30%  { transform: rotate(4deg); }
+  45%  { transform: rotate(-3deg); }
+  60%  { transform: rotate(3deg); }
+  75%  { transform: rotate(-1deg); }
+  100% { transform: rotate(0deg); }
+}
+
+

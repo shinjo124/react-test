@@ -1,27 +1,71 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { sounds } from '../utils/soundEffects';
 
 export const SOFT_THEMES = [
-  { id: 'linen', label: 'WARM LINEN', bg: '#f8f6f0' },
-  { id: 'sage', label: 'MUTED SAGE', bg: '#eef3ee' },
-  { id: 'lavender', label: 'LAVENDER HAZE', bg: '#f2eff8' },
-  { id: 'azure', label: 'ICE AZURE', bg: '#edf4f8' },
-  { id: 'peach', label: 'SOFT PEACH', bg: '#fbf0ea' },
-  { id: 'rose', label: 'ROSE MIST', bg: '#f8eef1' },
-  { id: 'stone', label: 'MINIMAL STONE', bg: '#f3f3f2' },
+  { id: 'linen',    bg: '#f8f6f0' },
+  { id: 'sage',     bg: '#eef3ee' },
+  { id: 'lavender', bg: '#f2eff8' },
+  { id: 'azure',    bg: '#edf4f8' },
+  { id: 'peach',    bg: '#fbf0ea' },
+  { id: 'rose',     bg: '#f8eef1' },
+  { id: 'stone',    bg: '#f3f3f2' },
 ];
 
-export const GREETINGS = [
-  'Hello, World!',
-  'Hello, Internet!',
-  'Hello, You!',
+// ── Milestone definitions ──────────────────────────────────────────────────────
+const MILESTONES = [
+  { at: 0,   msg: 'There is absolutely nothing useful here.',           btn: 'DO NOT CLICK',          effect: null          },
+  { at: 1,   msg: 'You clicked it.',                                    btn: 'DO NOT CLICK AGAIN',    effect: null          },
+  { at: 2,   msg: 'Interesting choice.',                                btn: 'OR DO YOU?',            effect: null          },
+  { at: 3,   msg: 'Why are you doing this?',                            btn: "I SAID DON'T",          effect: 'wiggle'      },
+  { at: 5,   msg: 'Okay, this is becoming a problem.',                  btn: 'PLEASE STOP',           effect: 'shake'       },
+  { at: 7,   msg: "I'm literally begging you.",                         btn: 'JUST ONE MORE?',        effect: 'wiggle'      },
+  { at: 10,  msg: 'STOP.',                                              btn: 'NO.',                   effect: 'shake-hard'  },
+  { at: 13,  msg: 'This button has a family.',                          btn: 'HAVE MERCY',            effect: null          },
+  { at: 15,  msg: 'You absolute menace.',                               btn: 'WHY ARE YOU LIKE THIS', effect: 'wiggle'      },
+  { at: 20,  msg: 'I have asked you nicely.',                           btn: 'YOU MONSTER',           effect: 'shake'       },
+  { at: 25,  msg: "I've informed the authorities.",                     btn: 'TOO LATE NOW',          effect: null          },
+  { at: 30,  msg: "Do you feel powerful? You shouldn't.",               btn: 'DO IT AGAIN COWARD',    effect: 'wiggle'      },
+  { at: 40,  msg: "At this point I'm just watching.",                   btn: 'FINE. CLICK ME.',       effect: null          },
+  { at: 50,  msg: 'Fine. You win.',                                     btn: 'YOU WIN. HAPPY?',       effect: 'confetti'    },
+  { at: 60,  msg: 'Actually, are you okay?',                            btn: 'SOMEONE HELP THEM',     effect: null          },
+  { at: 75,  msg: 'Achievement Unlocked: You Have No Self-Control.',    btn: 'SEND HELP',             effect: 'achievement' },
+  { at: 100, msg: '100 clicks. A legend of our time. Truly.',           btn: 'A TRUE LEGEND',         effect: 'confetti'    },
+  { at: 150, msg: "At this point you're basically a developer.",        btn: 'SHIP IT',               effect: null          },
+  { at: 200, msg: "I don't know what to say anymore.",                  btn: '...',                   effect: 'confetti'    },
 ];
 
-const EMOJI_POOL = [
-  '✨', '♟️', '🪐', '☕', '⚡', '🌿', '🔮', '🫧',
-  '🎨', '🕊️', '💫', '🎯', '💎', '🌙', '🌊', '👑'
-];
+function getMilestone(count) {
+  let result = MILESTONES[0];
+  for (const m of MILESTONES) {
+    if (count >= m.at) result = m;
+    else break;
+  }
+  return result;
+}
 
+// ── Confetti system ────────────────────────────────────────────────────────────
+const CONFETTI_COLORS = ['#f59e0b','#10b981','#6366f1','#f43f5e','#0ea5e9','#a78bfa','#fb923c','#34d399'];
+
+function spawnConfetti(count = 60) {
+  const container = document.getElementById('confetti-layer');
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'confetti-piece';
+    el.style.setProperty('--x', `${Math.random() * 100}vw`);
+    el.style.setProperty('--delay', `${Math.random() * 0.5}s`);
+    el.style.setProperty('--duration', `${0.9 + Math.random() * 0.8}s`);
+    el.style.setProperty('--color', CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]);
+    el.style.setProperty('--rot', `${Math.random() * 720 - 360}deg`);
+    el.style.setProperty('--size', `${6 + Math.random() * 8}px`);
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  }
+}
+
+const BURST_EMOJIS = ['✨','🎉','💥','⚡','🌀','😤','🤡','💫','🎯','🔥','😱','🫠','💀','🎊','😈'];
+
+// ── Component ──────────────────────────────────────────────────────────────────
 export default function FuturisticPortal({
   onOpenChess,
   themeIndex = 0,
@@ -29,184 +73,170 @@ export default function FuturisticPortal({
   themes = SOFT_THEMES,
 }) {
   const [clickCount, setClickCount] = useState(0);
-  const [textIndex, setTextIndex] = useState(0);
   const [localThemeIndex, setLocalThemeIndex] = useState(themeIndex);
-  const [emojis, setEmojis] = useState([]);
   const [shockwaveKey, setShockwaveKey] = useState(0);
-
-  const emojiIdRef = useRef(0);
+  const [particles, setParticles] = useState([]);
+  const [screenEffect, setScreenEffect] = useState(null);
+  const [achievement, setAchievement] = useState(null);
+  const [milestoneKey, setMilestoneKey] = useState(0);
+  const particleIdRef = useRef(0);
+  const prevMilestoneAtRef = useRef(0);
 
   const activeThemeIndex = onThemeChange ? themeIndex : localThemeIndex;
   const currentTheme = themes[activeThemeIndex % themes.length] || SOFT_THEMES[0];
-  const currentGreeting = GREETINGS[textIndex % GREETINGS.length];
+  const milestone = getMilestone(clickCount);
 
-  const handleDefianceClick = useCallback((e) => {
-    // 1. Play subtle audio pulse
-    if (sounds.playCyberZap) {
-      sounds.playCyberZap();
-    } else {
-      sounds.playMove();
-    }
+  // intensity tier 0-4
+  const intensity = clickCount >= 100 ? 4 : clickCount >= 50 ? 3 : clickCount >= 20 ? 2 : clickCount >= 10 ? 1 : 0;
 
-    // 2. Increment defiance counter
-    setClickCount((prev) => prev + 1);
+  useEffect(() => {
+    if (!screenEffect) return;
+    const t = setTimeout(() => setScreenEffect(null), 700);
+    return () => clearTimeout(t);
+  }, [screenEffect]);
 
-    // 3. Cycle greeting text
-    setTextIndex((prev) => (prev + 1) % GREETINGS.length);
+  useEffect(() => {
+    if (!achievement) return;
+    const t = setTimeout(() => setAchievement(null), 4000);
+    return () => clearTimeout(t);
+  }, [achievement]);
 
-    // 4. Change background theme
-    if (onThemeChange) {
-      onThemeChange((prev) => (prev + 1) % themes.length);
-    } else {
-      setLocalThemeIndex((prev) => (prev + 1) % themes.length);
-    }
+  const handleClick = useCallback((e) => {
+    const nextCount = clickCount + 1;
+    setClickCount(nextCount);
 
-    // 5. Trigger subtle shockwave
+    if (sounds.playCyberZap) sounds.playCyberZap();
+    else sounds.playMove?.();
+
+    if (onThemeChange) onThemeChange((p) => (p + 1) % themes.length);
+    else setLocalThemeIndex((p) => (p + 1) % themes.length);
+
     setShockwaveKey((k) => k + 1);
 
-    // 6. Spawn floating emojis around the button
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const count = 2;
-    const newItems = [];
-
-    for (let i = 0; i < count; i++) {
-      const id = ++emojiIdRef.current;
-      const emoji = EMOJI_POOL[Math.floor(Math.random() * EMOJI_POOL.length)];
-      const angle = (Math.random() * 360 * Math.PI) / 180;
-      const distance = 60 + Math.random() * 80;
-      const dx = Math.cos(angle) * distance;
-      const dy = Math.sin(angle) * distance - 60; // drift upward
-      const rot = (Math.random() - 0.5) * 40;
-      const scale = 0.85 + Math.random() * 0.4;
-
-      newItems.push({
-        id,
-        emoji,
-        x: centerX,
-        y: centerY,
-        dx,
-        dy,
-        rot,
-        scale,
-      });
+    // Milestone effect
+    const next = getMilestone(nextCount);
+    if (next.at !== prevMilestoneAtRef.current) {
+      setMilestoneKey((k) => k + 1);
+      switch (next.effect) {
+        case 'shake':       setScreenEffect('shake');      break;
+        case 'shake-hard':  setScreenEffect('shake-hard'); break;
+        case 'confetti':    spawnConfetti(70);             break;
+        case 'achievement': spawnConfetti(55); setAchievement(next.msg); break;
+        default: break;
+      }
+      prevMilestoneAtRef.current = next.at;
     }
 
-    setEmojis((prev) => [...prev, ...newItems]);
-
-    // Clean up emojis after animation completes
-    setTimeout(() => {
-      setEmojis((prev) => prev.filter((item) => !newItems.some((n) => n.id === item.id)));
-    }, 1100);
-  }, [onThemeChange, themes.length]);
+    // Burst particles (scale with clicks)
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const burstCount = Math.min(2 + Math.floor(nextCount / 10), 10);
+    const newP = [];
+    for (let i = 0; i < burstCount; i++) {
+      const id = ++particleIdRef.current;
+      const angle = (Math.random() * 360 * Math.PI) / 180;
+      const dist = 50 + Math.random() * 110;
+      newP.push({
+        id,
+        emoji: BURST_EMOJIS[Math.floor(Math.random() * BURST_EMOJIS.length)],
+        x: cx, y: cy,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist - 60,
+        rot: (Math.random() - 0.5) * 60,
+        scale: 0.8 + Math.random() * 0.6,
+      });
+    }
+    setParticles((prev) => [...prev, ...newP]);
+    setTimeout(() => setParticles((prev) => prev.filter((p) => !newP.some((n) => n.id === p.id))), 1200);
+  }, [clickCount, onThemeChange, themes.length]);
 
   return (
-    <div className={`portal-stage theme-${currentTheme.id}`}>
-      {/* Subtle organic light accent */}
-      <div className="portal-ambient-glow" aria-hidden="true" />
+    <div className={`portal-stage theme-${currentTheme.id} ${screenEffect ? `screen-${screenEffect}` : ''}`}>
+      {/* Confetti DOM layer */}
+      <div id="confetti-layer" className="confetti-layer" aria-hidden="true" />
 
-      {/* Minimal Telemetry HUD */}
-      <div className="portal-hud top-hud">
-        <div className="hud-badge">
-          <span className="hud-dot" />
-          <span className="hud-mono">STATUS: ACTIVE</span>
-        </div>
-        <div className="hud-badge secondary">
-          <span className="hud-mono">TONE: {currentTheme.label}</span>
-        </div>
-      </div>
-
-      {/* Floating Emojis Layer */}
+      {/* Burst particles */}
       <div className="portal-emoji-layer" aria-hidden="true">
-        {emojis.map((item) => (
+        {particles.map((p) => (
           <span
-            key={item.id}
+            key={p.id}
             className="burst-emoji"
             style={{
-              left: `${item.x}px`,
-              top: `${item.y}px`,
-              '--dx': `${item.dx}px`,
-              '--dy': `${item.dy}px`,
-              '--rot': `${item.rot}deg`,
-              '--scale': item.scale,
+              left: `${p.x}px`, top: `${p.y}px`,
+              '--dx': `${p.dx}px`, '--dy': `${p.dy}px`,
+              '--rot': `${p.rot}deg`, '--scale': p.scale,
             }}
-          >
-            {item.emoji}
-          </span>
+          >{p.emoji}</span>
         ))}
       </div>
 
-      {/* Main Content */}
+      {/* Achievement toast */}
+      {achievement && (
+        <div className="achievement-toast" role="alert">
+          <span className="achievement-icon">🏆</span>
+          <span className="achievement-text">{achievement}</span>
+        </div>
+      )}
+
+      {/* Main content */}
       <main className="portal-content">
-        {/* Strictly fixed-height title wrapper to prevent layout shift */}
+
+        {/* Headline — fixed height, no wrap */}
         <div className="portal-title-wrapper">
-          <h1 className="huge-portal-title">
-            {currentGreeting}
+          <h1 className={`huge-portal-title intensity-title-${intensity}`}>
+            Hello, World!
           </h1>
-          <p className="portal-caption">
-            System reality protocol engaged. Do not alter core parameters.
-          </p>
         </div>
 
-        {/* Compact Hazard Action Button */}
+        {/* Milestone message */}
+        <div className="message-card" key={milestoneKey}>
+          <p className="milestone-message">{milestone.msg}</p>
+        </div>
+
+        {/* Button */}
         <div className="hazard-zone">
           {shockwaveKey > 0 && (
             <div key={shockwaveKey} className="hazard-shockwave" aria-hidden="true" />
           )}
-
           <button
             type="button"
-            className="do-not-click-btn"
-            onClick={handleDefianceClick}
-            aria-label="Do not click button"
+            key={`btn-${milestone.at}`}
+            className={`do-not-click-btn intensity-btn-${intensity} ${milestone.effect === 'wiggle' ? 'wiggle-anim' : ''}`}
+            onClick={handleClick}
+            aria-label={milestone.btn}
           >
             <span className="btn-hazard-dot" aria-hidden="true" />
-            <span className="btn-label">DO NOT CLICK</span>
+            <span className="btn-label">{milestone.btn}</span>
           </button>
         </div>
 
-        {/* Simplistic Defiance Counter */}
+        {/* Counter */}
         <div className="defiance-counter-card">
-          <span className="counter-eyebrow">DEFIANCE LEVEL</span>
+          <span className="counter-eyebrow">TIMES CLICKED</span>
           <div className="counter-reading">
-            <span className="counter-digits" key={clickCount}>
-              {clickCount.toString().padStart(2, '0')}
-            </span>
-            <span className="counter-metric">
-              {clickCount === 1 ? 'VIOLATION' : 'VIOLATIONS'}
-            </span>
+            <span className="counter-digits" key={clickCount}>{clickCount}</span>
+            <span className="counter-metric">{clickCount === 1 ? 'time' : 'times'}</span>
           </div>
           <div className="counter-progress-bar">
             <div
               className="counter-fill"
-              style={{ transform: `scaleX(${Math.min(1, clickCount / 10)})` }}
+              style={{ transform: `scaleX(${Math.min(1, clickCount / 50)})` }}
             />
           </div>
         </div>
 
-        {/* Quick link to Chess */}
+        {/* Chess link */}
         {onOpenChess && (
           <div className="portal-footer-link">
-            <button
-              type="button"
-              className="quick-chess-launch-btn"
-              onClick={onOpenChess}
-            >
+            <button type="button" className="quick-chess-launch-btn" onClick={onOpenChess}>
               <span className="launch-icon">♟️</span>
-              <span>Open Grandmaster Chess Arena</span>
+              <span>Open Chess Arena</span>
               <span className="launch-arrow">→</span>
             </button>
           </div>
         )}
       </main>
-
-      {/* Bottom Telemetry HUD */}
-      <div className="portal-hud bottom-hud">
-        <span className="hud-mono">COORDINATES: 0x7F // SECTOR 9</span>
-        <span className="hud-mono">SYSTEM: NORMAL</span>
-      </div>
     </div>
   );
 }

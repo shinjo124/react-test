@@ -2,8 +2,6 @@
 
 > *Whatever you do, do not click the button.*
 
-A dark corner of the digital void.
-
 A screen. A greeting. A warning you will probably ignore.
 
 ---
